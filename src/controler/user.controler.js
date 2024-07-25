@@ -56,9 +56,9 @@ const varifyaccesRefTokan = async (id) => {
     }
 
     const accsesstoken = jwt.sign(
-      { id: user._id, role: user.role },
+      { id: user._id, role: user.role, expiresIn: '1 Hours' },
       "exprngkjrgkrkgire",
-      { expiresIn: 60 * 60 }
+      { expiresIn: 600 * 600 }
     );
 
     const refreshToken = jwt.sign({ id: id }, "jdbfksevfhefhkebjk", {
@@ -204,6 +204,13 @@ const generateNewTokens = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Invalid Token",
+      });
+    }
+
+    if (req.cookies.refreshToken != user.toObject().refreshToken) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Token for this user",
       });
     }
     const data = await varifyaccesRefTokan(user._id);

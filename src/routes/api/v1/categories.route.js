@@ -1,9 +1,11 @@
 const express = require("express");
 const { categoriesControler } = require("../../../controler");
+const auth = require("../../../db/auth");
 const app = express();
 const router = express.Router();
 
 router.get("/list-categories",
+    auth(["admin"]),
     categoriesControler.listcategories
 );
 

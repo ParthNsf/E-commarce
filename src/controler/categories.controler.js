@@ -2,7 +2,8 @@ const Categories = require("../model/categories.model")
 
 const listcategories = async (req,res) => {
     try {
-        console.log("njrsg ");
+        console.log("cate : ", req.user);
+
         const category = await Categories.find();
         console.log(category);
 
@@ -29,6 +30,8 @@ const listcategories = async (req,res) => {
 const getcategory = async (req,res) => {
 
     try {
+
+
         const aggregatedData = await Category.aggregate([
           // Your aggregation pipeline stages go here
           // Example:
