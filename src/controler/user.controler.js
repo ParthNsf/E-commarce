@@ -65,9 +65,9 @@ const varifyaccesRefTokan = async (id) => {
       expiresIn: "2 days",
     });
 
-    user.refreshToken = refreshToken
+    user.refreshToken = refreshToken;
 
-    await user.save({validateBeforeSave: false})
+    await user.save({ validateBeforeSave: false });
 
     return { accsesstoken, refreshToken };
   } catch (error) {
@@ -153,26 +153,27 @@ const login = async (req, res) => {
 
     console.log(accsesstoken, refreshToken);
 
-    const userDataF = await Users.findById({ _id: user._id }).select("-password -refreshToken")
+    const userDataF = await Users.findById({ _id: user._id }).select(
+      "-password -refreshToken"
+    );
 
-        const option={
-            httpOnly:true,
-            secure:true,
-        }
+    const option = {
+      httpOnly: true,
+      secure: true,
+    };
 
-        res.status(200).
-            cookie("accsesstoken", accsesstoken,option).
-            cookie("refreshToken", refreshToken,option).
-            json({
-                success: true,
-                message: "login success",
-               data:{
-                 ...userDataF.toObject(),
-                accsesstoken,
-               }
-            })
-
-    
+    res
+      .status(200)
+      .cookie("accsesstoken", accsesstoken, option)
+      .cookie("refreshToken", refreshToken, option)
+      .json({
+        success: true,
+        message: "login success",
+        data: {
+          ...userDataF.toObject(),
+          accsesstoken,
+        },
+      });
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -181,6 +182,55 @@ const login = async (req, res) => {
   }
 };
 
+const generateNewTokens = async (req, res) => {
+  try {
+    console.log("req.body :::", req.cookies.refreshToken);
+
+    const checkToken = await jwt.verify(req.cookies.refreshToken, "jdbfksevfhefhkebjk");
+  
+    console.log(checkToken);
+  
+    if (!checkToken) {
+      return res.status(400).json({
+        success: false,
+        message: "Token expired",
+      });
+    }
+  
+    const user = await Users.findById(checkToken.id);
+    console.log("user::::: ", user);
+  
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Token",
+      });
+    }
+    const data = await varifyaccesRefTokan(user._id);
+
+    const option = {
+      httpOnly: true,
+      secure: true,
+    };
+
+    res
+      .status(200)
+      .cookie("accsesstoken", data.accsesstoken, option)
+      .cookie("refreshToken", data.refreshToken, option)
+      .json({
+        success: true,
+        message: "login success",
+        data: data.accsesstoken
+      });
+
+ 
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error: " + error.message,
+    });
+  }
+};
 
 // const updateuser = async (req,res) => {
 //     try {
@@ -238,6 +288,7 @@ module.exports = {
   // listuser,
   registerUsers,
   login,
+  generateNewTokens,
   // updateuser,
   // deleteuser,
   // getuser,

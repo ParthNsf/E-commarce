@@ -1,5 +1,5 @@
 const express = require("express");
-const { registerUsers, login } = require("../../../controler/user.controler");
+const { registerUsers, login, generateNewTokens } = require("../../../controler/user.controler");
 
 const app = express();
 const router = express.Router();
@@ -9,6 +9,9 @@ const router = express.Router();
 router.post("/add-user",registerUsers);
 
 router.post("/login-user",login);
+
+router.post('/refresh-tokens', generateNewTokens);
+
 
 
 // router.put(
